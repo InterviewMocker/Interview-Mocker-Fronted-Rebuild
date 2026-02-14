@@ -79,19 +79,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-950 text-white p-6 lg:p-8">
-    <div class="max-w-7xl mx-auto space-y-8">
+  <div class="min-h-screen p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto space-y-8 animate-fade-in">
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+          <h1 class="text-3xl font-bold text-gradient">
             题库管理
           </h1>
           <p class="text-gray-400 mt-1">管理面试题目集合</p>
         </div>
         <button
           @click="navigateToCreate"
-          class="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-500/20"
+          class="btn-primary flex items-center gap-2"
         >
           <PlusIcon class="w-5 h-5" />
           <span>新建题库</span>
@@ -99,7 +99,7 @@ onMounted(() => {
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-wrap items-center gap-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+      <div class="glass-nav rounded-xl p-4 border border-white/5 flex flex-wrap items-center gap-4">
         <div class="flex items-center gap-2 text-gray-400">
           <MagnifyingGlassIcon class="w-5 h-5" />
           <span class="text-sm font-medium">筛选：</span>
@@ -107,49 +107,48 @@ onMounted(() => {
         
         <select
           v-model="queryParams.category"
-          @change="handleSearch"
-          class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+          class="bg-dark-900/50 border border-white/10 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block p-2.5 outline-none backdrop-blur-sm transition-all hover:border-white/20"
         >
           <option v-for="opt in categories" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
+            {{ opt.label || '全部分类' }}
           </option>
         </select>
       </div>
 
       <!-- Grid -->
       <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="n in 6" :key="n" class="h-40 bg-gray-900 rounded-xl animate-pulse border border-gray-800"></div>
+        <div v-for="n in 6" :key="n" class="h-48 bg-dark-900/50 rounded-xl animate-pulse border border-white/5"></div>
       </div>
 
       <div v-else-if="banks.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
           v-for="bank in banks"
           :key="bank.id"
-          class="group bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-emerald-500/50 hover:bg-gray-800/80 transition-all flex flex-col h-full relative"
+          @click="navigateToBank(bank.id)"
+          class="glass-card p-5 cursor-pointer flex flex-col h-full group hover:-translate-y-1 relative"
         >
-          <!-- Card Content (Clickable) -->
-          <div @click="navigateToBank(bank.id)" class="cursor-pointer flex-1">
+          <div class="flex flex-col h-full">
             <div class="flex items-start justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span 
                   v-if="bank.category"
-                  class="px-2 py-0.5 rounded text-xs font-medium bg-blue-900/30 text-blue-400 border border-blue-800/50"
+                  class="px-2 py-0.5 rounded text-xs font-medium bg-primary-900/30 text-primary-400 border border-primary-800/50"
                 >
                   {{ bank.category }}
                 </span>
                 <span 
                   :class="[
                     'px-2 py-0.5 rounded text-xs font-medium border',
-                    bank.status === 'active' ? 'bg-emerald-900/30 text-emerald-400 border-emerald-800/50' : 'bg-gray-800 text-gray-400 border-gray-700'
+                    bank.status === 'active' ? 'bg-success-900/30 text-success-400 border-success-800/50' : 'bg-dark-800 text-gray-400 border-gray-700'
                   ]"
                 >
                   {{ bank.status === 'active' ? '活跃' : '停用' }}
                 </span>
               </div>
-              <FolderIcon class="w-6 h-6 text-gray-600 group-hover:text-emerald-400 transition-colors" />
+              <FolderIcon class="w-6 h-6 text-gray-500 group-hover:text-primary-400 transition-colors" />
             </div>
 
-            <h3 class="text-lg font-semibold text-gray-100 group-hover:text-emerald-400 transition-colors mb-2">
+            <h3 class="text-lg font-semibold text-gray-100 group-hover:text-primary-400 transition-colors mb-2">
               {{ bank.name }}
             </h3>
 
@@ -161,7 +160,7 @@ onMounted(() => {
               <span 
                 v-for="tag in bank.tags.slice(0, 3)" 
                 :key="tag"
-                class="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700"
+                class="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-dark-800/50 text-gray-400 border border-white/10"
               >
                 {{ tag }}
               </span>
@@ -175,14 +174,14 @@ onMounted(() => {
           <div class="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button 
               @click.stop="editBank(bank.id)"
-              class="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 transition-colors"
+              class="p-1.5 rounded-lg bg-dark-800 hover:bg-dark-700 text-gray-300 hover:text-white border border-white/10 transition-colors"
               title="编辑"
             >
               <PencilIcon class="w-4 h-4" />
             </button>
             <button 
               @click.stop="handleDelete(bank.id)"
-              class="p-1.5 rounded-lg bg-red-900/20 hover:bg-red-900/40 text-red-400 hover:text-red-300 border border-red-900/30 transition-colors"
+              class="p-1.5 rounded-lg bg-error-900/20 hover:bg-error-900/40 text-error-400 hover:text-error-300 border border-error-900/30 transition-colors"
               title="删除"
             >
               <TrashIcon class="w-4 h-4" />
@@ -201,14 +200,14 @@ onMounted(() => {
         <button
           :disabled="queryParams.page === 1"
           @click="queryParams.page!--; fetchBanks()"
-          class="px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn-secondary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           上一页
         </button>
         <button
           :disabled="queryParams.page! * queryParams.page_size! >= total"
           @click="queryParams.page!++; fetchBanks()"
-          class="px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn-secondary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           下一页
         </button>

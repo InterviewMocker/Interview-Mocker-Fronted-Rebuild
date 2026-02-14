@@ -2,79 +2,129 @@
 import { 
   CubeIcon, 
   ArrowRightIcon, 
+  BookOpenIcon,
+  CpuChipIcon,
+  ChartBarIcon,
+  CodeBracketIcon,
+  BriefcaseIcon,
+  FireIcon
 } from '@heroicons/vue/24/outline'
 
 const stats = [
-  { value: '1000+', label: '面试题库' },
+  { value: '1000+', label: '面试真题' },
   { value: '50+', label: '热门岗位' },
   { value: 'AI', label: '智能评估' },
 ]
 
 const features = [
-  { id: 1, title: '海量面试题库', description: '覆盖前端、后端、算法等多个领域，精选高频面试真题。' },
-  { id: 2, title: '真实岗位模拟', description: '基于真实企业招聘需求，定制化岗位面试流程。' },
-  { id: 3, title: 'AI 智能评估', description: '多维度能力评估，实时反馈面试表现，提供改进建议。' },
-  { id: 4, title: '知识库沉淀', description: '构建个人专属知识体系，随时查阅复习。' },
-  { id: 5, title: '实战模拟', description: '还原真实面试场景，支持代码考核与场景问答。' },
-  { id: 6, title: '复盘提升', description: '面试记录自动保存，随时回放复盘，针对性突破。' },
+  { 
+    id: 1, 
+    title: '海量题库', 
+    description: '覆盖全栈开发领域，精选高频真题。',
+    icon: BookOpenIcon,
+    gradient: 'from-orange-500 to-amber-500'
+  },
+  { 
+    id: 2, 
+    title: '岗位模拟', 
+    description: '真实还原大厂面试流程与考核标准。',
+    icon: BriefcaseIcon,
+    gradient: 'from-rose-500 to-pink-500'
+  },
+  { 
+    id: 3, 
+    title: 'AI 评估', 
+    description: '深度分析回答质量，提供优化建议。',
+    icon: CpuChipIcon,
+    gradient: 'from-teal-500 to-emerald-500'
+  },
+  { 
+    id: 4, 
+    title: '知识沉淀', 
+    description: '构建个人专属知识体系，查漏补缺。',
+    icon: CubeIcon,
+    gradient: 'from-blue-500 to-indigo-500'
+  },
+  { 
+    id: 5, 
+    title: '实战演练', 
+    description: '在线代码编辑器，支持实时运行。',
+    icon: CodeBracketIcon,
+    gradient: 'from-violet-500 to-purple-500'
+  },
+  { 
+    id: 6, 
+    title: '复盘提升', 
+    description: '自动生成面试报告，可视化能力模型。',
+    icon: ChartBarIcon,
+    gradient: 'from-red-500 to-orange-500'
+  },
 ]
 </script>
 
 <template>
-  <div class="container mx-auto px-4 lg:px-8 py-12 lg:py-20">
-    <div class="grid lg:grid-cols-2 gap-16 items-start">
-      <!-- Left Column: Hero -->
-      <div class="space-y-10 pt-4">
-        <div class="space-y-6">
-          <h1 class="text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-            AI 驱动的<br />
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-              模拟面试系统
-            </span>
-          </h1>
-          <p class="text-gray-400 text-lg lg:text-xl leading-relaxed max-w-lg">
-            通过 AI 数字人进行真实面试模拟，提升你的面试技能。<br />
-            智能评估、精准反馈、持续提升。
-          </p>
+  <div class="relative overflow-hidden">
+    <!-- Hero Section -->
+    <div class="container mx-auto px-4 lg:px-8 py-20 lg:py-32 relative z-10">
+      <div class="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8 animate-fade-in">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-400 text-sm font-medium backdrop-blur-sm">
+          <FireIcon class="w-4 h-4" />
+          <span>全新 AI 驱动面试体验</span>
+        </div>
+        
+        <h1 class="text-5xl lg:text-7xl font-bold leading-tight tracking-tight">
+          掌握面试主动权<br />
+          <span class="text-gradient">成就职业梦想</span>
+        </h1>
+        
+        <p class="text-gray-400 text-lg lg:text-xl leading-relaxed max-w-2xl mx-auto">
+          Mock.AI 通过先进的数字人技术，为您提供身临其境的模拟面试环境。
+          实时反馈、精准评估，助您在每一次真实面试中脱颖而出。
+        </p>
+        
+        <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+          <router-link to="/positions" class="btn-primary flex items-center gap-2 text-lg px-8 py-3">
+            开始模拟面试
+            <ArrowRightIcon class="w-5 h-5" />
+          </router-link>
+          <router-link to="/knowledge" class="btn-secondary flex items-center gap-2 text-lg px-8 py-3">
+            浏览知识库
+          </router-link>
         </div>
 
-        <div class="flex flex-wrap gap-4">
-          <router-link to="/positions" class="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-semibold transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
-            去面试
-          </router-link>
-          <router-link to="/positions" class="px-8 py-3.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition-all border border-gray-700 flex items-center gap-2 group">
-            浏览岗位
-            <ArrowRightIcon class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </router-link>
-        </div>
-
-        <div class="flex items-center gap-12 pt-4">
-          <div v-for="stat in stats" :key="stat.label" class="text-center">
-            <div class="text-3xl font-bold text-white mb-1">{{ stat.value }}</div>
-            <div class="text-sm text-gray-500">{{ stat.label }}</div>
+        <div class="grid grid-cols-3 gap-8 md:gap-16 pt-12 border-t border-white/5 w-full max-w-3xl">
+          <div v-for="stat in stats" :key="stat.label" class="space-y-1">
+            <div class="text-3xl lg:text-4xl font-bold text-white">{{ stat.value }}</div>
+            <div class="text-sm text-gray-500 uppercase tracking-wider">{{ stat.label }}</div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Right Column: Cards Grid -->
-      <div class="relative">
-        <div class="absolute inset-x-0 -top-8 h-20 bg-gradient-to-b from-gray-950 to-transparent z-10 pointer-events-none"></div>
-        
-        <div class="grid grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent pb-8">
-          <div 
-            v-for="card in features" 
-            :key="card.id"
-            class="group bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6 hover:border-emerald-500/50 hover:bg-gray-800/50 transition-all cursor-pointer"
-          >
-            <div class="aspect-video bg-gray-800/50 rounded-lg mb-4 flex items-center justify-center group-hover:bg-gray-800 transition-colors">
-              <CubeIcon class="w-8 h-8 text-gray-600 group-hover:text-emerald-400 transition-colors" />
-            </div>
-            <h3 class="text-white font-medium mb-1 group-hover:text-emerald-400 transition-colors">{{ card.title }}</h3>
-            <p class="text-gray-500 text-sm">{{ card.description }}</p>
+    <!-- Features Section -->
+    <div class="container mx-auto px-4 lg:px-8 py-20 relative z-10">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold text-white mb-4">全方位能力提升</h2>
+        <p class="text-gray-400 max-w-xl mx-auto">从基础知识到实战演练，我们为您准备了完整的面试准备工具链。</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div 
+          v-for="feature in features" 
+          :key="feature.id"
+          class="glass-card p-6 group cursor-pointer hover:-translate-y-1"
+        >
+          <div :class="['w-12 h-12 rounded-xl mb-6 flex items-center justify-center bg-gradient-to-br text-white shadow-lg', feature.gradient]">
+            <component :is="feature.icon" class="w-6 h-6" />
           </div>
+          
+          <h3 class="text-xl font-bold text-white mb-2 group-hover:text-primary-400 transition-colors">
+            {{ feature.title }}
+          </h3>
+          <p class="text-gray-400 leading-relaxed">
+            {{ feature.description }}
+          </p>
         </div>
-
-        <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-gray-950 via-gray-950/80 to-transparent pointer-events-none"></div>
       </div>
     </div>
   </div>

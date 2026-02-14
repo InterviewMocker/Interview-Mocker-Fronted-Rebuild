@@ -42,10 +42,10 @@ const difficultyNames: Record<string, string> = {
 }
 
 const difficultyColors: Record<string, string> = {
-  junior: 'bg-green-900/30 text-green-400 border-green-800/50',
-  mid: 'bg-blue-900/30 text-blue-400 border-blue-800/50',
-  senior: 'bg-yellow-900/30 text-yellow-400 border-yellow-800/50',
-  expert: 'bg-red-900/30 text-red-400 border-red-800/50'
+  junior: 'bg-success-900/30 text-success-400 border-success-800/50',
+  mid: 'bg-accent-900/30 text-accent-400 border-accent-800/50',
+  senior: 'bg-warning-900/30 text-warning-400 border-warning-800/50',
+  expert: 'bg-error-900/30 text-error-400 border-error-800/50'
 }
 
 async function fetchPositions() {
@@ -95,19 +95,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-950 text-white p-6 lg:p-8">
-    <div class="max-w-7xl mx-auto space-y-8">
+  <div class="min-h-screen p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto space-y-8 animate-fade-in">
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+          <h1 class="text-3xl font-bold text-gradient">
             岗位管理
           </h1>
           <p class="text-gray-400 mt-1">管理招聘岗位与面试要求</p>
         </div>
         <button
           @click="navigateToCreate"
-          class="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-500/20"
+          class="btn-primary flex items-center gap-2"
         >
           <PlusIcon class="w-5 h-5" />
           <span>新建岗位</span>
@@ -115,7 +115,7 @@ onMounted(() => {
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-wrap items-center gap-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+      <div class="glass-nav rounded-xl p-4 border border-white/5 flex flex-wrap items-center gap-4">
         <div class="flex items-center gap-2 text-gray-400">
           <MagnifyingGlassIcon class="w-5 h-5" />
           <span class="text-sm font-medium">筛选：</span>
@@ -123,77 +123,71 @@ onMounted(() => {
         
         <select
           v-model="queryParams.category"
-          @change="handleSearch"
-          class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+          class="bg-dark-900/50 border border-white/10 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block p-2.5 outline-none backdrop-blur-sm transition-all hover:border-white/20"
         >
           <option v-for="opt in categories" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
+            {{ opt.label || '全部分类' }}
           </option>
         </select>
       </div>
 
       <!-- Grid -->
       <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="n in 6" :key="n" class="h-48 bg-gray-900 rounded-xl animate-pulse border border-gray-800"></div>
+        <div v-for="n in 6" :key="n" class="h-48 bg-dark-900/50 rounded-xl animate-pulse border border-white/5"></div>
       </div>
 
       <div v-else-if="positions.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
           v-for="pos in positions"
           :key="pos.id"
-          class="group bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-emerald-500/50 hover:bg-gray-800/80 transition-all flex flex-col h-full relative"
+          @click="navigateToDetail(pos.id)"
+          class="glass-card p-5 cursor-pointer flex flex-col h-full group hover:-translate-y-1 relative"
         >
-          <!-- Card Content -->
-          <div @click="navigateToDetail(pos.id)" class="cursor-pointer flex-1">
+          <div class="flex flex-col h-full">
             <div class="flex items-start justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span 
-                  v-if="pos.category"
-                  class="px-2 py-0.5 rounded text-xs font-medium bg-blue-900/30 text-blue-400 border border-blue-800/50"
+                  v-if="pos.department"
+                  class="px-2 py-0.5 rounded text-xs font-medium bg-primary-900/30 text-primary-400 border border-primary-800/50"
                 >
-                  {{ pos.category }}
+                  {{ pos.department }}
                 </span>
                 <span 
-                  v-if="pos.difficulty_level"
-                  :class="['px-2 py-0.5 rounded text-xs font-medium border', difficultyColors[pos.difficulty_level]]"
+                  :class="['px-2 py-0.5 rounded text-xs font-medium border', difficultyColors[pos.difficulty] || 'bg-gray-800 text-gray-400 border-gray-700']"
                 >
-                  {{ difficultyNames[pos.difficulty_level] }}
+                  {{ difficultyNames[pos.difficulty] || pos.difficulty }}
                 </span>
               </div>
-              <BriefcaseIcon class="w-6 h-6 text-gray-600 group-hover:text-emerald-400 transition-colors" />
+              <BriefcaseIcon class="w-6 h-6 text-gray-500 group-hover:text-primary-400 transition-colors" />
             </div>
 
-            <h3 class="text-lg font-semibold text-gray-100 group-hover:text-emerald-400 transition-colors mb-1">
-              {{ pos.name }}
+            <h3 class="text-lg font-semibold text-gray-100 group-hover:text-primary-400 transition-colors mb-2">
+              {{ pos.title }}
             </h3>
-            <p class="text-xs text-gray-500 mb-3 font-mono">{{ pos.code }}</p>
 
-            <p class="text-sm text-gray-400 line-clamp-2 mb-4">
-              {{ pos.description || '暂无描述' }}
-            </p>
-
+            <!-- Stats/Info -->
             <div class="flex flex-wrap gap-2 mb-4">
               <span 
                 v-if="pos.education_requirement"
-                class="px-2 py-0.5 rounded text-xs bg-purple-900/30 text-purple-400 border border-purple-800/50"
+                class="px-2 py-0.5 rounded text-xs bg-secondary-900/30 text-secondary-400 border border-secondary-800/50"
               >
                 {{ pos.education_requirement }}
               </span>
-              <div class="flex items-center gap-1 text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded border border-gray-700">
+              <div class="flex items-center gap-1 text-xs text-gray-400 bg-dark-800/50 px-2 py-0.5 rounded border border-white/10">
                 <DocumentTextIcon class="w-3 h-3" />
                 {{ pos.default_question_count }} 题
               </div>
-              <div class="flex items-center gap-1 text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded border border-gray-700">
+              <div class="flex items-center gap-1 text-xs text-gray-400 bg-dark-800/50 px-2 py-0.5 rounded border border-white/10">
                 <ClockIcon class="w-3 h-3" />
                 {{ pos.default_duration }} 分钟
               </div>
             </div>
 
-            <div v-if="pos.required_skills?.length" class="flex flex-wrap gap-2 mt-auto pt-4 border-t border-gray-800">
+            <div v-if="pos.required_skills?.length" class="flex flex-wrap gap-2 mt-auto pt-4 border-t border-white/5">
               <span 
                 v-for="skill in pos.required_skills.slice(0, 3)" 
                 :key="skill"
-                class="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700"
+                class="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-dark-800/50 text-gray-400 border border-white/10"
               >
                 {{ skill }}
               </span>
@@ -207,14 +201,14 @@ onMounted(() => {
           <div class="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button 
               @click.stop="editPosition(pos.id)"
-              class="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 transition-colors"
+              class="p-1.5 rounded-lg bg-dark-800 hover:bg-dark-700 text-gray-300 hover:text-white border border-white/10 transition-colors"
               title="编辑"
             >
               <PencilIcon class="w-4 h-4" />
             </button>
             <button 
               @click.stop="handleDelete(pos.id)"
-              class="p-1.5 rounded-lg bg-red-900/20 hover:bg-red-900/40 text-red-400 hover:text-red-300 border border-red-900/30 transition-colors"
+              class="p-1.5 rounded-lg bg-error-900/20 hover:bg-error-900/40 text-error-400 hover:text-error-300 border border-error-900/30 transition-colors"
               title="删除"
             >
               <TrashIcon class="w-4 h-4" />
@@ -233,14 +227,14 @@ onMounted(() => {
         <button
           :disabled="queryParams.page === 1"
           @click="queryParams.page!--; fetchPositions()"
-          class="px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn-secondary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           上一页
         </button>
         <button
           :disabled="queryParams.page! * queryParams.page_size! >= total"
           @click="queryParams.page!++; fetchPositions()"
-          class="px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn-secondary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           下一页
         </button>
