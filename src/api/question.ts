@@ -98,7 +98,7 @@ export function deleteQuestion(questionId: string): Promise<ApiResponse<null>> {
  */
 export function extractQuestions(formData: FormData): Promise<Response> {
   // We use fetch directly for SSE to get the readable stream
-  const token = localStorage.getItem('token') || ''
+  const token = localStorage.getItem('access_token') || ''
   return fetch(`/api/v1${QUESTION_PREFIX}/extract`, {
     method: 'POST',
     headers: {
