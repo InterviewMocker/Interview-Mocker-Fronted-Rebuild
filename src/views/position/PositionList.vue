@@ -147,22 +147,23 @@ onMounted(() => {
             <div class="flex items-start justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span 
-                  v-if="pos.department"
+                  v-if="pos.category"
                   class="px-2 py-0.5 rounded text-xs font-medium bg-primary-900/30 text-primary-400 border border-primary-800/50"
                 >
-                  {{ pos.department }}
+                  {{ pos.category }}
                 </span>
                 <span 
-                  :class="['px-2 py-0.5 rounded text-xs font-medium border', difficultyColors[pos.difficulty] || 'bg-gray-800 text-gray-400 border-gray-700']"
+                  v-if="pos.difficulty_level"
+                  :class="['px-2 py-0.5 rounded text-xs font-medium border', difficultyColors[pos.difficulty_level] || 'bg-gray-800 text-gray-400 border-gray-700']"
                 >
-                  {{ difficultyNames[pos.difficulty] || pos.difficulty }}
+                  {{ difficultyNames[pos.difficulty_level] || pos.difficulty_level }}
                 </span>
               </div>
               <BriefcaseIcon class="w-6 h-6 text-gray-500 group-hover:text-primary-400 transition-colors" />
             </div>
 
             <h3 class="text-lg font-semibold text-gray-100 group-hover:text-primary-400 transition-colors mb-2">
-              {{ pos.title }}
+              {{ pos.name }}
             </h3>
 
             <!-- Stats/Info -->

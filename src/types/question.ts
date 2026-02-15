@@ -1,3 +1,5 @@
+export type CommunityStatus = null | 'pending' | 'approved' | 'rejected'
+
 export interface QuestionBankCreate {
   name: string
   description?: string
@@ -20,7 +22,9 @@ export interface QuestionBank {
   category: string | null
   tags: string[] | null
   status: string
+  community_status: CommunityStatus
   created_by: string | null
+  creator_username?: string
   created_at: string
 }
 
@@ -29,6 +33,10 @@ export interface QuestionBankListParams {
   page_size?: number
   category?: string
   status?: string
+}
+
+export interface CommunityReviewRequest {
+  action: 'approve' | 'reject' | 'delist'
 }
 
 export type QuestionType = 'technical' | 'scenario' | 'algorithm' | 'behavioral'

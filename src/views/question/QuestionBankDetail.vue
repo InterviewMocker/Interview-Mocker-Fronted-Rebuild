@@ -11,7 +11,9 @@ import {
   TrashIcon,
   ChevronRightIcon,
   CloudArrowUpIcon,
-  XMarkIcon
+  XMarkIcon,
+  UserIcon,
+  ClockIcon
 } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
@@ -138,10 +140,35 @@ onMounted(() => {
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold text-white">
+            <h1 class="text-3xl font-bold text-white flex items-center gap-3">
               {{ bank?.name }}
+              <span 
+                v-if="bank?.community_status === 'approved'"
+                class="px-2 py-1 rounded text-xs font-bold bg-primary-500 text-white shadow-lg shadow-primary-500/30"
+              >
+                社区题库
+              </span>
             </h1>
-            <p class="text-gray-400 mt-1">{{ bank?.description || '题目列表' }}</p>
+            <div class="flex items-center gap-4 mt-2 text-sm text-gray-400">
+              <span v-if="bank?.creator_username" class="flex items-center gap-1">
+                <UserIcon class="w-4 h-4" />
+                {{ bank.creator_username }}
+              </span>
+              <span v-if="bank?.created_at" class="flex items-center gap-1">
+                <ClockIcon class="w-4 h-4" />
+                {{ new Date(bank.created_at).toLocaleDateString() }}
+              </span>
+            </div>
+            <p class="text-gray-400 mt-2">{{ bank?.description || '暂无描述' }}</p>
+            <div v-if="bank?.tags?.length" class="flex flex-wrap gap-2 mt-3">
+              <span 
+                v-for="tag in bank.tags" 
+                :key="tag"
+                class="px-2 py-0.5 rounded text-xs bg-dark-800 text-gray-400 border border-white/10"
+              >
+                {{ tag }}
+              </span>
+            </div>
           </div>
           <div class="flex gap-3">
             <button

@@ -1,0 +1,1 @@
+import{B as t}from"./index-B1_3jWiP.js";const n="/knowledge/documents";function r(e){return t.get(n,{params:e})}function c(e){return t.post(n,e)}function s(e){return t.get(`${n}/${e}`)}function d(e,o){return t.put(`${n}/${e}`,o)}function g(e){return t.delete(`${n}/${e}`)}export{c,g as d,s as g,r as l,d as u};

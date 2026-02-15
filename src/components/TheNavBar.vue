@@ -13,6 +13,7 @@ const authStore = useAuthStore()
 
 const navigation = [
   { name: '首页', path: '/' },
+  { name: '社区', path: '/community' },
   { name: '知识库', path: '/knowledge' },
   { name: '题库', path: '/questions/banks' },
   { name: '岗位', path: '/positions' },
@@ -64,7 +65,10 @@ function handleLogin() {
       
       <div class="flex items-center gap-4">
         <template v-if="isLoggedIn">
-          <div class="flex items-center gap-3 px-3 py-1.5 rounded-full bg-dark-900/50 border border-white/10 hover:border-primary-500/50 transition-colors cursor-pointer group">
+          <div 
+            @click="router.push('/profile')"
+            class="flex items-center gap-3 px-3 py-1.5 rounded-full bg-dark-900/50 border border-white/10 hover:border-primary-500/50 transition-colors cursor-pointer group"
+          >
             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 p-[1px]">
               <div class="w-full h-full rounded-full bg-dark-950 flex items-center justify-center">
                 <span class="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary-500 to-secondary-500">

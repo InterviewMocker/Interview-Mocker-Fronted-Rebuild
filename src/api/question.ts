@@ -5,6 +5,7 @@ import type {
   QuestionBankUpdate,
   QuestionBankListParams,
   QuestionBank,
+  CommunityReviewRequest,
   QuestionCreate,
   QuestionUpdate,
   QuestionListParams,
@@ -39,6 +40,28 @@ export function updateQuestionBank(bankId: string, data: QuestionBankUpdate): Pr
 
 export function deleteQuestionBank(bankId: string): Promise<ApiResponse<null>> {
   return request.delete(`${QUESTION_PREFIX}/banks/${bankId}`)
+}
+
+// ============ Community API ============
+
+export function listCommunityBanks(params?: Omit<QuestionBankListParams, 'status'>): Promise<ApiResponse<PaginatedResponse<QuestionBank>>> {
+  return request.get(`${QUESTION_PREFIX}/community/banks`, { params })
+}
+
+export function applyCommunity(bankId: string): Promise<ApiResponse<QuestionBank>> {
+  return request.post(`${QUESTION_PREFIX}/banks/${bankId}/apply-community`)
+}
+
+export function reviewCommunity(bankId: string, data: CommunityReviewRequest): Promise<ApiResponse<QuestionBank>> {
+  return request.post(`${QUESTION_PREFIX}/banks/${bankId}/review-community`, data)
+}
+
+export function listPendingBanks(params?: { page?: number; page_size?: number }): Promise<ApiResponse<PaginatedResponse<QuestionBank>>> {
+  return request.get(`${QUESTION_PREFIX}/community/pending`, { params })
+}
+
+export function copyCommunityBank(bankId: string): Promise<ApiResponse<QuestionBank>> {
+  return request.post(`${QUESTION_PREFIX}/community/banks/${bankId}/copy`)
 }
 
 // ============ Question API ============

@@ -122,6 +122,20 @@ const router = createRouter({
           name: 'position-edit',
           component: () => import('@/views/position/PositionEdit.vue'),
           meta: { requiresAuth: true }
+        },
+        // Community Routes
+        {
+          path: 'community',
+          name: 'community',
+          component: () => import('@/views/community/CommunityIndex.vue'),
+          meta: { requiresAuth: true }
+        },
+        // Profile Routes
+        {
+          path: 'profile',
+          name: 'profile',
+          component: () => import('@/views/profile/ProfileIndex.vue'),
+          meta: { requiresAuth: true }
         }
       ]
     },
