@@ -357,10 +357,10 @@ onMounted(() => {
             <!-- Key Points -->
             <div v-if="selectedQuestion.answer_key_points?.length" class="space-y-2">
               <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider">得分要点</h3>
-              <ul class="space-y-2">
-                <li v-for="(point, idx) in selectedQuestion.answer_key_points" :key="idx" class="flex items-start gap-2 text-gray-300">
-                  <span class="text-emerald-500 mt-1.5">•</span>
-                  <span>{{ point }}</span>
+              <ul class="space-y-3">
+                <li v-for="(point, idx) in selectedQuestion.answer_key_points" :key="idx" class="flex items-start gap-3 text-sm text-gray-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
+                  <span class="leading-relaxed">{{ point }}</span>
                 </li>
               </ul>
             </div>

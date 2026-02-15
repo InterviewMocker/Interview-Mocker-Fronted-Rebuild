@@ -21,7 +21,8 @@ import {
   ArrowLeftIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
-  CpuChipIcon
+  CpuChipIcon,
+  ChevronDownIcon
 } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
@@ -41,6 +42,26 @@ const extractionStatus = ref<'idle' | 'uploading' | 'processing' | 'review' | 'i
 const taskId = ref<string | null>(null)
 const extractedQuestions = ref<QuestionBatchCreateItem[]>([])
 const selectedIndices = ref<Set<number>>(new Set())
+const expandedIndices = ref<Set<number>>(new Set())
+
+const typeMap: Record<string, string> = {
+  technical: '技术题',
+  scenario: '场景题',
+  algorithm: '算法题',
+  behavioral: '行为题'
+}
+
+const difficultyMap: Record<string, string> = {
+  easy: '简单',
+  medium: '中等',
+  hard: '困难'
+}
+
+const difficultyColorMap: Record<string, string> = {
+  easy: 'text-green-400 bg-green-400/10 border-green-400/20',
+  medium: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
+  hard: 'text-red-400 bg-red-400/10 border-red-400/20'
+}
 
 // SSE Reader
 let reader: ReadableStreamDefaultReader<Uint8Array> | null = null
@@ -158,6 +179,14 @@ function handleSSEEvent(event: string, data: any) {
         extractionStatus.value = 'idle'
       }
       break
+  }
+}
+
+function toggleExpand(index: number) {
+  if (expandedIndices.value.has(index)) {
+    expandedIndices.value.delete(index)
+  } else {
+    expandedIndices.value.add(index)
   }
 }
 
@@ -459,35 +488,76 @@ onUnmounted(() => {
               v-for="(q, index) in extractedQuestions" 
               :key="index"
               :class="[
-                'p-4 rounded-xl border transition-all cursor-pointer',
+                'p-5 rounded-xl border transition-all cursor-pointer group hover:shadow-lg hover:shadow-emerald-900/10',
                 selectedIndices.has(index) 
                   ? 'bg-emerald-900/10 border-emerald-500/50' 
                   : 'bg-gray-900 border-gray-800 hover:border-gray-700'
               ]"
               @click="toggleSelection(index)"
             >
-              <div class="flex items-start gap-3">
+              <div class="flex items-start gap-4">
                 <div class="pt-1">
                   <input 
                     type="checkbox" 
                     :checked="selectedIndices.has(index)"
                     readonly
-                    class="rounded bg-gray-800 border-gray-700 text-emerald-500 focus:ring-emerald-500/20"
+                    class="w-5 h-5 rounded bg-gray-800 border-gray-700 text-emerald-500 focus:ring-emerald-500/20 cursor-pointer"
                   />
                 </div>
-                <div class="flex-1 space-y-2">
-                  <div class="flex items-center gap-2">
-                    <span class="text-emerald-400 text-sm font-bold">[{{ q.type }}]</span>
-                    <span class="text-gray-400 text-sm">难度: {{ q.difficulty }}</span>
-                    <span class="text-gray-400 text-sm">分数: {{ q.difficulty_score }}</span>
+                <div class="flex-1 space-y-3">
+                  <!-- Meta Info -->
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-medium px-2.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        {{ typeMap[q.type] || q.type }}
+                      </span>
+                      <span :class="['text-xs font-medium px-2.5 py-0.5 rounded border', difficultyColorMap[q.difficulty] || 'text-gray-400 border-gray-700']">
+                        {{ difficultyMap[q.difficulty] || q.difficulty }}
+                      </span>
+                    </div>
+                    <span v-if="q.difficulty_score" class="text-xs font-medium px-2.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                      难度分: {{ q.difficulty_score }}
+                    </span>
                   </div>
-                  <h4 class="font-medium text-white">{{ q.title }}</h4>
-                  <p class="text-gray-400 text-sm line-clamp-2">{{ q.content }}</p>
-                  <div v-if="q.reference_answer" class="text-gray-500 text-sm bg-gray-900/50 p-2 rounded">
-                    <span class="text-gray-400">参考答案:</span> {{ q.reference_answer }}
+
+                  <!-- Title -->
+                  <h4 class="font-medium text-white text-base leading-snug">{{ q.title }}</h4>
+                  
+                  <!-- Reference Answer -->
+                  <div class="bg-gray-800/40 rounded-lg p-3 border border-gray-800 space-y-1.5">
+                    <div class="text-xs text-gray-500 font-medium uppercase tracking-wider">参考答案</div>
+                    <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{{ q.reference_answer || '暂无参考答案' }}</p>
                   </div>
-                  <div class="flex flex-wrap gap-2">
-                    <span v-for="tag in q.tags" :key="tag" class="text-xs px-2 py-0.5 bg-gray-800 rounded text-gray-400">{{ tag }}</span>
+
+                  <!-- Key Points (Expandable) -->
+                  <div v-if="q.answer_key_points && q.answer_key_points.length > 0" class="pt-1">
+                    <button 
+                      @click.stop="toggleExpand(index)"
+                      class="flex items-center gap-1.5 text-xs font-medium text-emerald-500 hover:text-emerald-400 transition-colors"
+                    >
+                      <ChevronDownIcon 
+                        :class="['w-4 h-4 transition-transform duration-200', expandedIndices.has(index) ? 'rotate-180' : '']" 
+                      />
+                      {{ expandedIndices.has(index) ? '收起得分要点' : `查看得分要点 (${q.answer_key_points.length})` }}
+                    </button>
+                    
+                    <div v-show="expandedIndices.has(index)" class="mt-3 space-y-2 pl-1 border-l-2 border-emerald-500/20 ml-2">
+                      <div 
+                        v-for="(point, idx) in q.answer_key_points" 
+                        :key="idx"
+                        class="flex items-start gap-2.5 text-sm text-gray-400 pl-3 relative"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/50 mt-1.5 flex-shrink-0"></span>
+                        <span class="leading-relaxed">{{ point }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tags -->
+                  <div v-if="q.tags && q.tags.length > 0" class="flex flex-wrap gap-2 pt-1 border-t border-gray-800/50 mt-3">
+                    <span v-for="tag in q.tags" :key="tag" class="text-xs px-2 py-0.5 bg-gray-800 rounded text-gray-500 hover:text-gray-300 transition-colors">
+                      #{{ tag }}
+                    </span>
                   </div>
                 </div>
               </div>
