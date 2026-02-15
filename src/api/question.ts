@@ -8,9 +8,13 @@ import type {
   QuestionCreate,
   QuestionUpdate,
   QuestionListParams,
+  QuestionBatchCreate,
+  QuestionBatchCreateResponse,
   Question,
   QuestionDetail,
-  PaginatedResponse
+  PaginatedResponse,
+  QuestionExtractionTask,
+  ImportQuestionsRequest
 } from '@/types/question'
 
 const QUESTION_PREFIX = '/questions'
@@ -47,6 +51,10 @@ export function createQuestion(data: QuestionCreate): Promise<ApiResponse<Questi
   return request.post(QUESTION_PREFIX, data)
 }
 
+export function batchCreateQuestions(data: QuestionBatchCreate): Promise<ApiResponse<QuestionBatchCreateResponse>> {
+  return request.post(`${QUESTION_PREFIX}/batch`, data)
+}
+
 export function getQuestion(questionId: string): Promise<ApiResponse<QuestionDetail>> {
   return request.get(`${QUESTION_PREFIX}/${questionId}`)
 }
@@ -57,4 +65,34 @@ export function updateQuestion(questionId: string, data: QuestionUpdate): Promis
 
 export function deleteQuestion(questionId: string): Promise<ApiResponse<null>> {
   return request.delete(`${QUESTION_PREFIX}/${questionId}`)
+}
+
+// ============ Extraction API ============
+
+/**
+ * Upload file and extract questions (SSE)
+ * Note: This returns the raw response for SSE handling, not a Promise<ApiResponse>
+ */
+export function extractQuestions(formData: FormData): Promise<Response> {
+  // We use fetch directly for SSE to get the readable stream
+  const token = localStorage.getItem('token') || ''
+  return fetch(`/api/v1${QUESTION_PREFIX}/extract`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+    body: formData
+  })
+}
+
+export function getExtractionTask(taskId: string): Promise<ApiResponse<QuestionExtractionTask>> {
+  return request.get(`${QUESTION_PREFIX}/extract/tasks/${taskId}`)
+}
+
+export function listExtractionTasks(limit: number = 20): Promise<ApiResponse<QuestionExtractionTask[]>> {
+  return request.get(`${QUESTION_PREFIX}/extract/tasks`, { params: { limit } })
+}
+
+export function importExtractedQuestions(data: ImportQuestionsRequest): Promise<ApiResponse<Question[]>> {
+  return request.post(`${QUESTION_PREFIX}/extract/import`, data)
 }

@@ -145,7 +145,7 @@ onMounted(() => {
                   {{ bank.status === 'active' ? '活跃' : '停用' }}
                 </span>
               </div>
-              <FolderIcon class="w-6 h-6 text-gray-500 group-hover:text-primary-400 transition-colors" />
+              <FolderIcon class="w-6 h-6 text-gray-500 group-hover:opacity-0 transition-opacity" />
             </div>
 
             <h3 class="text-lg font-semibold text-gray-100 group-hover:text-primary-400 transition-colors mb-2">

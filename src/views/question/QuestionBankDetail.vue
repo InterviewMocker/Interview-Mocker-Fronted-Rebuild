@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { listQuestions, deleteQuestion, getQuestionBank } from '@/api/question'
-import type { Question, QuestionListParams, QuestionBank } from '@/types/question'
+import { listQuestions, deleteQuestion, getQuestionBank, getQuestion } from '@/api/question'
+import type { Question, QuestionListParams, QuestionBank, QuestionDetail } from '@/types/question'
 import { 
   ArrowLeftIcon, 
   PlusIcon, 
   MagnifyingGlassIcon,
   PencilIcon, 
   TrashIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  CloudArrowUpIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
@@ -20,6 +22,11 @@ const bank = ref<QuestionBank | null>(null)
 const questions = ref<Question[]>([])
 const total = ref(0)
 const loading = ref(false)
+
+// Modal State
+const showDetailModal = ref(false)
+const selectedQuestion = ref<QuestionDetail | null>(null)
+const detailLoading = ref(false)
 
 const queryParams = reactive<QuestionListParams>({
   page: 1,
@@ -73,8 +80,25 @@ function navigateToCreate() {
   router.push(`/questions/create?bank_id=${bankId}`)
 }
 
-function navigateToDetail(id: string) {
-  router.push(`/questions/${id}`)
+async function openDetailModal(id: string) {
+  showDetailModal.value = true
+  selectedQuestion.value = null
+  detailLoading.value = true
+  
+  try {
+    const res = await getQuestion(id)
+    selectedQuestion.value = res.data
+  } catch (error) {
+    console.error('Failed to fetch question detail:', error)
+    showDetailModal.value = false
+  } finally {
+    detailLoading.value = false
+  }
+}
+
+function closeDetailModal() {
+  showDetailModal.value = false
+  selectedQuestion.value = null
 }
 
 function editQuestion(id: string) {
@@ -87,6 +111,9 @@ async function handleDelete(id: string) {
   try {
     await deleteQuestion(id)
     fetchQuestions()
+    if (showDetailModal.value && selectedQuestion.value?.id === id) {
+      closeDetailModal()
+    }
   } catch (error) {
     console.error('Delete failed:', error)
   }
@@ -116,13 +143,22 @@ onMounted(() => {
             </h1>
             <p class="text-gray-400 mt-1">{{ bank?.description || '题目列表' }}</p>
           </div>
-          <button
-            @click="navigateToCreate"
-            class="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-500/20"
-          >
-            <PlusIcon class="w-5 h-5" />
-            <span>新建题目</span>
-          </button>
+          <div class="flex gap-3">
+            <button
+              @click="router.push(`/questions/banks/${bankId}/import?bank_id=${bankId}`)"
+              class="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors border border-gray-700"
+            >
+              <CloudArrowUpIcon class="w-5 h-5" />
+              <span>导入/批量</span>
+            </button>
+            <button
+              @click="navigateToCreate"
+              class="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-500/20"
+            >
+              <PlusIcon class="w-5 h-5" />
+              <span>新建题目</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -176,7 +212,7 @@ onMounted(() => {
               <tr 
                 v-for="q in questions" 
                 :key="q.id"
-                @click="navigateToDetail(q.id)"
+                @click="openDetailModal(q.id)"
                 class="hover:bg-gray-800/50 cursor-pointer transition-colors"
               >
                 <td class="px-6 py-4">
@@ -243,5 +279,109 @@ onMounted(() => {
         </button>
       </div>
     </div>
+
+    <!-- Detail Modal -->
+    <div v-if="showDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="closeDetailModal"></div>
+      <div class="relative bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
+        <!-- Modal Header -->
+        <div class="flex items-start justify-between p-6 border-b border-gray-800">
+          <div v-if="detailLoading" class="h-6 w-48 bg-gray-800 rounded animate-pulse"></div>
+          <div v-else class="space-y-1 pr-8">
+            <h2 class="text-xl font-bold text-white leading-tight">{{ selectedQuestion?.title }}</h2>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-emerald-400">{{ typeNames[selectedQuestion?.type || 'technical'] }}</span>
+              <span class="text-gray-600">•</span>
+              <span class="text-sm text-gray-400">{{ difficultyColors[selectedQuestion?.difficulty || 'medium'].includes('green') ? '简单' : difficultyColors[selectedQuestion?.difficulty || 'medium'].includes('yellow') ? '中等' : '困难' }}</span>
+              <span v-if="selectedQuestion?.difficulty_score" class="text-sm text-gray-500">(难度分: {{ selectedQuestion.difficulty_score }})</span>
+            </div>
+          </div>
+          <button 
+            @click="closeDetailModal"
+            class="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors absolute right-4 top-4"
+          >
+            <XMarkIcon class="w-6 h-6" />
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-6 overflow-y-auto custom-scrollbar space-y-8">
+          <div v-if="detailLoading" class="space-y-4">
+            <div class="h-4 bg-gray-800 rounded w-full animate-pulse"></div>
+            <div class="h-4 bg-gray-800 rounded w-3/4 animate-pulse"></div>
+            <div class="h-4 bg-gray-800 rounded w-5/6 animate-pulse"></div>
+          </div>
+          
+          <template v-else-if="selectedQuestion">
+            <!-- Question Content -->
+            <div class="space-y-2">
+              <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider">题目内容</h3>
+              <div class="text-gray-200 whitespace-pre-wrap leading-relaxed">{{ selectedQuestion.content }}</div>
+            </div>
+
+            <!-- Reference Answer -->
+            <div v-if="selectedQuestion.reference_answer" class="space-y-2">
+              <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider">参考答案</h3>
+              <div class="bg-gray-800/50 rounded-xl p-4 text-gray-300 whitespace-pre-wrap leading-relaxed border border-gray-700/50">
+                {{ selectedQuestion.reference_answer }}
+              </div>
+            </div>
+
+            <!-- Key Points -->
+            <div v-if="selectedQuestion.answer_key_points?.length" class="space-y-2">
+              <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider">得分要点</h3>
+              <ul class="space-y-2">
+                <li v-for="(point, idx) in selectedQuestion.answer_key_points" :key="idx" class="flex items-start gap-2 text-gray-300">
+                  <span class="text-emerald-500 mt-1.5">•</span>
+                  <span>{{ point }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Tags -->
+            <div v-if="selectedQuestion.tags?.length" class="pt-4 border-t border-gray-800">
+              <div class="flex flex-wrap gap-2">
+                <span v-for="tag in selectedQuestion.tags" :key="tag" class="px-2.5 py-1 rounded-full text-xs bg-gray-800 text-gray-400 border border-gray-700">
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-4 border-t border-gray-800 flex justify-end gap-3 bg-gray-900/50 rounded-b-2xl">
+          <button 
+            v-if="selectedQuestion"
+            @click="editQuestion(selectedQuestion.id)"
+            class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors border border-gray-700 flex items-center gap-2"
+          >
+            <PencilIcon class="w-4 h-4" />
+            编辑
+          </button>
+          <button 
+            v-if="selectedQuestion"
+            @click="handleDelete(selectedQuestion.id)"
+            class="px-4 py-2 bg-red-900/20 hover:bg-red-900/30 text-red-400 rounded-lg text-sm font-medium transition-colors border border-red-900/30 flex items-center gap-2"
+          >
+            <TrashIcon class="w-4 h-4" />
+            删除
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #374151;
+  border-radius: 20px;
+}
+</style>

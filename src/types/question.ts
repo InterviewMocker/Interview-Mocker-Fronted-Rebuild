@@ -48,6 +48,29 @@ export interface QuestionCreate {
   scoring_criteria?: Record<string, number>
 }
 
+export interface QuestionBatchCreateItem {
+  title: string
+  content: string
+  type: QuestionType
+  category?: string
+  difficulty: Difficulty
+  difficulty_score?: number
+  tags?: string[]
+  reference_answer?: string
+  answer_key_points?: string[]
+  scoring_criteria?: Record<string, number>
+}
+
+export interface QuestionBatchCreate {
+  bank_id: string
+  questions: QuestionBatchCreateItem[]
+}
+
+export interface QuestionBatchCreateResponse {
+  total: number
+  questions: Question[]
+}
+
 export interface QuestionUpdate {
   title?: string
   content?: string
@@ -91,6 +114,42 @@ export interface QuestionListParams {
   category?: string
   difficulty?: Difficulty
   status?: string
+}
+
+// ============ Extraction Types ============
+
+export interface QuestionExtractionTask {
+  task_id: string
+  filename: string
+  bank_id: string
+  status: 'processing' | 'completed' | 'failed'
+  total_chunks: number
+  processed_chunks: number
+  progress: number
+  total_questions?: number
+  questions?: QuestionBatchCreateItem[] // Uses the creation item type as they are not yet saved
+  error?: string | null
+  created_at: number
+  updated_at: number
+}
+
+export interface QuestionExtractionEvent {
+  task_id: string
+  chunk?: number
+  total_chunks?: number
+  progress?: number
+  new_questions?: QuestionBatchCreateItem[]
+  total_questions_so_far?: number
+  total_questions?: number
+  questions?: QuestionBatchCreateItem[]
+  message?: string
+  partial_questions?: QuestionBatchCreateItem[]
+}
+
+export interface ImportQuestionsRequest {
+  task_id: string
+  bank_id: string
+  question_indices?: number[]
 }
 
 export interface PaginatedResponse<T> {

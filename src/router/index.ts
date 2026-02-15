@@ -74,6 +74,12 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'questions/banks/:id/import',
+          name: 'question-bank-import',
+          component: () => import('@/views/question/QuestionBatchImport.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'questions/banks/:id/edit',
           name: 'question-bank-edit',
           component: () => import('@/views/question/QuestionBankEdit.vue'),
